@@ -1,0 +1,39 @@
+{
+   "number_over_140k":[
+            {
+         "name":"Spanish flu",
+         "over":196,
+         "women":84,
+         "students":500,
+         "nonAcademicStaff":1918
+      },
+      {
+         "name":"Asian flu",
+         "over":186,
+         "women":74,
+         "students":4,
+         "nonAcademicStaff":1957
+      },
+      {
+         "name":"Russian flu",
+         "over":194,
+         "women":84,
+         "students":400,
+         "nonAcademicStaff":2040
+      },
+      {
+         "name":"Japan flu",
+         "over":192,
+         "women":74,
+         "students":250,
+         "nonAcademicStaff":2057
+      },
+      {
+         "name":"Covid-19",
+         "over":187,
+         "women":74,
+         "students":15,
+         "nonAcademicStaff":2019
+      }
+   ]
+}

@@ -14,9 +14,7 @@ picture = list(data['Picture'])
 
 
 def folium_map():
-    m = folium.Map(location = [33, -117], zoom_start = 10)
-    for con, lt, ln, prd in zip(country, LAT, LON, provider):
-        popup = folium.Popup("<br> Country : "+con+" <br> Provider Center : "+prd+" <br>", max_width = 2500)
-        marker = folium.Marker([lt, ln], popup=popup).add_to(m)
-        m.add_child(marker)
+    m = folium.Map(location = [0, 0], zoom_start = 2)
+    for con, lt, ln, prd, pic in zip(country, LAT, LON, provider, picture):
+        m.add_child(folium.Marker(location = [lt, ln], popup = "<br>State : "+con+" <br> Provider Center : "+prd+" <img src = "+pic+" height = 142, width = 290>"))
     return render_template("template.html")+m._repr_html_()+render_template("footer.html")

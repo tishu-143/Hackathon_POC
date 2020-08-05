@@ -1,0 +1,48 @@
+{
+   "pay_ratios_2015_16":[
+            {
+         "name":"Spanish flu",
+         "max":598000,
+         "min":118667,
+         "median":137333,
+         "apprentice":[
+            115590,
+            118920
+         ]
+      },
+      {
+         "name":"Asian flu",
+         "max":362228,
+         "min":4001240,
+         "median":40248,
+         "apprentice":25124
+      },
+      {
+         "name":"Russian flu",
+         "max":474000,
+         "min":118667,
+         "median":137333,
+         "apprentice":[
+            115590,
+            118920
+         ]
+      },
+      {
+         "name":"Japan flu",
+         "max":296000,
+         "min":118667,
+         "median":137333,
+         "apprentice":[
+            115590,
+            118920
+         ]
+      },
+      {
+         "name":"Covid-19",
+         "max":762228,
+         "min":4001240,
+         "median":40248,
+         "apprentice":25124
+      }
+   ]
+}
