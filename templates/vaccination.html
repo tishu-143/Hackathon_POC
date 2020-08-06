@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<style>
+#my_dataviz{
+heigth:1000px;
+}
+body {
+  background-color: #F1F3F3    
+}
+div.tooltip {	
+            position: absolute;			
+            text-align: center;			
+            width: 120px;					
+            height: 65px;					
+            padding: 2px;				
+            font: 12px sans-serif;		
+            background: lightsteelblue;	
+            border: 1px;		
+            border-radius: 8px;			
+            pointer-events: none;				
+        }
+
+
+</style>
+
+</head>
+<body>
+<div class="vaccine" style="width:65%; float:left;"></div>
+<div style="width:35%; float:right;">
+<h2>Clinical Trials Phases</h2>
+<div><span><b>Phase-1: </b> The first time a new treatment or vaccine is tested in humans, it will usually be given to a small group of healthy volunteers.</span></br>
+<span>The principle objectives in phase I are to:</span></br>
+<ul>
+<li><span>makes sure that the new medicine presents no major safety issues</span></li>
+<li><span>clarify that it can reach the targeted body area, and remain there long enough to deliver its benefits</span></li>
+<li><span>gain preliminary evidence that it could offer therapeutic value, or prevent the disease or condition</span></li>
+</ul>
+
+</div>
+<div><span><b>Phase-2: </b> If phase I is successful, approval will be sought for a trial involving a larger group of people. phase II trials will usually (but not always) include patients who have the condition the potential medicine is targeting.</span></br>
+<span>This aims to establish:</span></br>
+<ul>
+<li><span>effectiveness in treating the condition</span></li>
+<li><span>effectiveness in preventing the condition (if the volunteer does not already have it)</span></li>
+<li><span>appropriate dosing levels</span></li>
+</ul>
+
+</div>
+<div><span><b>Phase-3: </b> If the results from phase II are encouraging, we will seek to start a phase III trial. This will be a much larger trial, often involving hundreds, possibly thousands of participants coming from a range of different countries.</span></br>
+<span>The principle objectives in phase I are to:</span></br>
+<ul>
+<li><span>demonstrate the safety and effectiveness of the new medicine or vaccine in the typical patient likely to use it</span></li>
+<li><span>confirm effective dosing levels</span></li>
+<li><span>identify side effects or reasons why the treatment should not be given to people with another condition (known as ‘contraindications’)</span></li>
+<li><span>build knowledge of the benefits of the medicine or vaccine and compare them with any risks</span></li>
+<li><span>compare results against any currently achieved by existing treatments</span></li>
+</ul>
+
+</div>
+</div>
+<script>
+
+
+      
+        	
+        // Parse the Data
+		
+		var rowJsonDataVac = '[{"Institution":"Clover Biopharmaceuticals Inc.","Country":"China","Type":"Protein subunit","Phase":"1"},{"Institution":"People’s Liberation Army Academy of Military Sciences and Walvax Biotech","Country":"China","Type":"RNA","Phase":"1"},{"Institution":"Imperial College of London","Country":"United Kingdom","Type":"RNA","Phase":"1"},{"Institution":"Gamaleya Research Institute","Country":"Russia","Type":"Non-replicating viral vector","Phase":"1"},{"Institution":"CureVac","Country":"Germany","Type":"RNA","Phase":"1"},{"Institution":"University of Queensland/ GSK/Dynavax","Country":"Australia","Type":"Protein subunit","Phase":"1"},{"Institution":"Vaxine Pty Ltd/Medytox","Country":"Australia/ South Korea","Type":"Protein subunit","Phase":"1"},{"Institution":"Medicago Inc.","Country":"Canada","Type":"VLP","Phase":"1"},{"Institution":"Kentucky Bioprocessing, Inc.","Country":"U.S","Type":"Protein subunit","Phase":"1,2"},{"Institution":"Novavax","Country":"U.S","Type":"Protein subunit","Phase":"1,2"},{"Institution":"Inovio Pharmaceuticals","Country":"U.S","Type":"DNA","Phase":"1,2"},{"Institution":"BioNTech/Fosun Pharma/Pfizer","Country":"U.S. and Europe","Type":"RNA (4 different vaccine variations)","Phase":"1,2"},{"Institution":"Arcturus/Duke-NUS","Country":"U.S. and Singapore","Type":"RNA","Phase":"1,2"},{"Institution":"Institute of Medical Biology and the Chinese Academy of Medical Sciences","Country":"China","Type":"Inactivated","Phase":"1,2"},{"Institution":"CanSino Biological and the Beijing Institute of Biotechnology","Country":"China","Type":"Non-replicating viral vector","Phase":"1,2"},{"Institution":"Anhui Zhifei Longcom Biopharmaceutical and the Institute of Microbiology, Chinese Academy of Sciences","Country":"China","Type":"Protein subunit","Phase":"1,2"},{"Institution":"Cadila Healthcare Limited","Country":"India","Type":"DNA","Phase":"1,2"},{"Institution":"Bharat Biotech","Country":"India","Type":"Inactivated","Phase":"1,2"},{"Institution":"Osaka University/ AnGes/Takara Bio","Country":"Japan","Type":"DNA","Phase":"1,2"},{"Institution":"Genexine Consortium","Country":"South Korea","Type":"DNA","Phase":"1,2"},{"Institution":"Moderna and the National Institute of Allergy and Infectious Diseases","Country":"U.S","Type":"RNA","Phase":"1,2,3"},{"Institution":"University of Oxford/ AstraZeneca/ Serum Institute of India","Country":"United Kingdom","Type":"Non-replicating viral vector","Phase":"1,2,3"},{"Institution":"Sinovac","Country":"China","Type":"Inactivated","Phase":"1,2,3"},{"Institution":"Beijing Institute of Biological Products and Sinopharm","Country":"China","Type":"Inactivated","Phase":"1,2,3"},{"Institution":"Wuhan Institute of Biological Products and Sinopharm","Country":"China","Type":"Inactivated","Phase":"1,2,3"}]';
+       var data= JSON.parse(rowJsonDataVac);
+	     console.log(data);
+		
+		
+         var margin = {top: 30, right: 10, bottom: 300, left: 200},
+             width = 900 - margin.left - margin.right,
+             height = 600 - margin.top - margin.bottom;
+        var axisPadding = 10;
+         var svgWidth = 600;
+        var svgHeight = 700;
+ 
+        var heightPad = 100;
+        var widthPad = 70;
+ 
+        var svg = d3.select(".vaccine")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+        
+			// Define the div for the tooltip
+        var div = d3.select(".vaccine").append("div")	
+            .attr("class", "tooltip")				
+            .style("opacity", 0);	
+        //Set up scales
+       
+		var x = d3.scaleBand()
+            .domain(data.map(function(d) { return d.Institution; }))
+			.range([ 0, width ])
+            .padding(0.4);
+			
+          svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+              .attr("transform", "translate(-10,0)rotate(-45)")
+              .style("text-anchor", "end");
+        
+          // Add Y axis
+          var y = d3.scaleBand()
+          .domain(data.map(function(d) { return d.Phase; }))
+            .range([ height, 0]);
+          svg.append("g")
+		  .text('Phase')
+          
+            .call(d3.axisLeft(y));
+         
+		// Label layer
+    var label = svg.append('g')
+        .attr('transform', 'translate(' + [margin.left - axisPadding, margin.top] + ')');
+    label.append('text')
+	     .attr("font-weight", "bold")
+        .text('Bar Chart for Clinical Trials Info')
+        
+        .attr({
+            'text-anchor': 'start',
+            
+        });
+    
+           
+          // Bars
+          svg.selectAll("mybar")
+            .data(data)
+            .enter()
+            .append("rect")
+              .attr("x", function(d) { return x(d.Institution); })
+              .attr("y", function(d) { return y(d.Phase); })
+              .attr("width", x.bandwidth())
+              .attr("height", function(d) { return height - y(d.Phase); })
+              .attr("fill", "#bc2a66")
+			  .on("mouseover", function(d) {		
+			   div.transition()
+			   .duration(200)		
+                .style("opacity", .9)	
+              .style("left", (d3.event.pageX - 50) + "px")
+              .style("top", d3.event.pageY - 70 + "px")
+              .style("display", "inline-block")
+			  div .html("<b>"+"Type of Vaccine: "+"</b>" + d.Type+ "</br>" + "<b>"+ "Country: "+ "</b>" + d.Country);
+               })			   
+               .on("mouseout", function(d) {		
+                    div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+               });
+        
+       
+
+        </script>
+        </html>

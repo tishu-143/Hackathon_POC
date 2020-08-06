@@ -17,6 +17,14 @@ def template():
 def tishant_Page():
     return tishant.folium_map()
 
+@app.route("/vaccination.html")
+def vaccination():
+    return render_template("vaccination.html")
+
+@app.route('/Covid-19-stats.html')
+def covid_jyotish():
+    return render_template("Covid-19-stats.html")
+
 @app.route("/Nimish.html")
 def nimish():
     return render_template("Nimish.html")

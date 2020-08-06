@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>D3:counties</title>
+    <style>
+        .background {
+            fill: none;
+            pointer-events: all;
+        }
+
+        #states {
+            fill: rgb(203, 114, 214);
+        }
+  
+        path {
+            fill: #ccc;
+            stroke: #fff;
+            stroke-width: .5px;
+        }
+
+        path:hover {
+            fill: red;
+        }
+
+        .axis text {
+            font: 10px sans-serif;
+        }
+
+        .axis line, .axis path {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        /* Legend Font Style */
+        body {
+            font: 11px sans-serif;
+            background-color: #ffffff;
+        }
+        
+        /* Legend Position Style */
+       .legend {
+            position:absolute;
+            left:20px;
+            top:30px;
+        }
+
+        #states .active {
+            display:none;
+        }
+
+        #state-borders {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 1.5px;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            pointer-events: none;
+        }
+
+        .county-boundary {
+            fill: rgb(22, 22, 22);
+            stroke: #fff;
+            stroke-width: .5px;
+        }
+
+        .county-boundary:hover, .state:hover {
+            fill: rgb(117, 49, 206);
+        }
+		div.tooltip {	
+            position: absolute;			
+            text-align: center;			
+            width: 120px;					
+            height: 55px;					
+            padding: 2px;				
+            font: 12px sans-serif;		
+            background: lightsteelblue;	
+            border: 0px;		
+            border-radius: 8px;			
+            pointer-events: none;			
+        }
+    </style>
+</head>
+<body>
+    <div style="margin-left: 450px; font-size: 16pt; font-weight: bold;"><span>State and County wise Covid Information</span></div>
+    <div class="viz"></div>
+
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/topojson.v3.min.js"></script>
+
+    <script type="text/javascript">
+        var margin = {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right:10
+        }, width = parseInt(d3.select('.viz').style('width'))
+            , width = width - margin.left - margin.right
+            , mapRatio = 0.5
+            , height = width * mapRatio
+            , active = d3.select(null);
+
+            var lowColor = '#f9f9f9'
+            var highColor = '#bc2a66'
+
+			
+			// Define the div for the tooltip
+        var div = d3.select("body").append("div")	
+            .attr("class", "tooltip")				
+            .style("opacity", 0);
+			
+        var svg = d3.select('.viz').append('svg')
+            .attr('class', 'center-container')
+            .attr('height', height + margin.top + margin.bottom)
+            .attr('width', width + margin.left + margin.right);
+
+        svg.append('rect')
+            .attr('class', 'background center-container')
+            .attr('height', height + margin.top + margin.bottom)
+            .attr('width', width + margin.left + margin.right)
+            .on('click', clicked);
+			
+	
+	
+ 
+        var rowJsonDataStr = '[{"USAState":"California","TotalCases":459195,"TotalDeaths":8453,"ActiveCases":309531,"TotalTests":"7,168,139"},{"USAState":"New York","TotalCases":439885,"TotalDeaths":32689,"ActiveCases":125571,"TotalTests":"5,569,879"},{"USAState":"Florida","TotalCases":423855,"TotalDeaths":5855,"ActiveCases":376134,"TotalTests":"3,386,503"},{"USAState":"Texas","TotalCases":397992,"TotalDeaths":5155,"ActiveCases":163730,"TotalTests":"3,664,679"},{"USAState":"New Jersey","TotalCases":185117,"TotalDeaths":15872,"ActiveCases":48154,"TotalTests":"1,953,289"},{"USAState":"Illinois","TotalCases":172666,"TotalDeaths":7590,"ActiveCases":24514,"TotalTests":"2,511,567"},{"USAState":"Georgia","TotalCases":167953,"TotalDeaths":3498,"ActiveCases":136735,"TotalTests":"1,642,432"},{"USAState":"Arizona","TotalCases":162014,"TotalDeaths":3305,"ActiveCases":137731,"TotalTests":"1,087,547"},{"USAState":"Massachusetts","TotalCases":115637,"TotalDeaths":8529,"ActiveCases":10656,"TotalTests":"1,205,961"},{"USAState":"North Carolina","TotalCases":112771,"TotalDeaths":1813,"ActiveCases":32251,"TotalTests":"1,613,385"},{"USAState":"Pennsylvania","TotalCases":111773,"TotalDeaths":7190,"ActiveCases":24015,"TotalTests":"1,132,408"},{"USAState":"Louisiana","TotalCases":107574,"TotalDeaths":3766,"ActiveCases":42352,"TotalTests":"1,233,264"},{"USAState":"Tennessee","TotalCases":93936,"TotalDeaths":967,"ActiveCases":38239,"TotalTests":"1,381,859"},{"USAState":"Michigan","TotalCases":86661,"TotalDeaths":6400,"ActiveCases":22759,"TotalTests":"1,901,252"},{"USAState":"Virginia","TotalCases":84567,"TotalDeaths":2078,"ActiveCases":71607,"TotalTests":"1,126,252"},{"USAState":"Ohio","TotalCases":84094,"TotalDeaths":3318,"ActiveCases":22311,"TotalTests":"1,321,931"},{"USAState":"Maryland","TotalCases":83748,"TotalDeaths":3440,"ActiveCases":74874,"TotalTests":"1,097,361"},{"USAState":"South Carolina","TotalCases":81199,"TotalDeaths":1491,"ActiveCases":50330,"TotalTests":"700,464"},{"USAState":"Alabama","TotalCases":79294,"TotalDeaths":1473,"ActiveCases":45311,"TotalTests":"647,743"},{"USAState":"Indiana","TotalCases":62372,"TotalDeaths":2903,"ActiveCases":15660,"TotalTests":"701,311"},{"USAState":"Washington","TotalCases":53906,"TotalDeaths":1510,"ActiveCases":35111,"TotalTests":"919,347"},{"USAState":"Mississippi","TotalCases":52304,"TotalDeaths":1495,"ActiveCases":20494,"TotalTests":"436,973"},{"USAState":"Minnesota","TotalCases":51153,"TotalDeaths":1614,"ActiveCases":5108,"TotalTests":"957,374"},{"USAState":"Wisconsin","TotalCases":48827,"TotalDeaths":892,"ActiveCases":9964,"TotalTests":"866,376"},{"USAState":"Connecticut","TotalCases":48776,"TotalDeaths":4413,"ActiveCases":21491,"TotalTests":"711,102"},{"USAState":"Colorado","TotalCases":44336,"TotalDeaths":1794,"ActiveCases":26032,"TotalTests":"494,626"},{"USAState":"Missouri","TotalCases":43240,"TotalDeaths":1233,"ActiveCases":33705,"TotalTests":"684,434"},{"USAState":"Nevada","TotalCases":42843,"TotalDeaths":734,"ActiveCases":17089,"TotalTests":"566,376"},{"USAState":"Iowa","TotalCases":42205,"TotalDeaths":828,"ActiveCases":11751,"TotalTests":"452,279"},{"USAState":"Arkansas","TotalCases":38623,"TotalDeaths":401,"ActiveCases":6600,"TotalTests":"477,267"},{"USAState":"Utah","TotalCases":37973,"TotalDeaths":274,"ActiveCases":12901,"TotalTests":"600,765"},{"USAState":"Oklahoma","TotalCases":31285,"TotalDeaths":496,"ActiveCases":6091,"TotalTests":"573,185"},{"USAState":"Kentucky","TotalCases":27079,"TotalDeaths":700,"ActiveCases":18958,"TotalTests":"582,521"},{"USAState":"Kansas","TotalCases":25508,"TotalDeaths":332,"ActiveCases":10838,"TotalTests":"277,967"},{"USAState":"Nebraska","TotalCases":24618,"TotalDeaths":316,"ActiveCases":6205,"TotalTests":"259,105"},{"USAState":"New Mexico","TotalCases":19042,"TotalDeaths":614,"ActiveCases":11079,"TotalTests":"520,718"},{"USAState":"Rhode Island","TotalCases":18224,"TotalDeaths":1002,"ActiveCases":15453,"TotalTests":"329,556"},{"USAState":"Idaho","TotalCases":18177,"TotalDeaths":146,"ActiveCases":12300,"TotalTests":"166,903"},{"USAState":"Oregon","TotalCases":16758,"TotalDeaths":289,"ActiveCases":12928,"TotalTests":"378,475"},{"USAState":"Delaware","TotalCases":14290,"TotalDeaths":579,"ActiveCases":5715,"TotalTests":"169,993"},{"USAState":"District Of Columbia","TotalCases":11780,"TotalDeaths":581,"ActiveCases":1592,"TotalTests":"171,598"},{"USAState":"South Dakota","TotalCases":8395,"TotalDeaths":123,"ActiveCases":908,"TotalTests":"106,926"},{"USAState":"New Hampshire","TotalCases":6436,"TotalDeaths":409,"ActiveCases":589,"TotalTests":"180,037"},{"USAState":"West Virginia","TotalCases":5960,"TotalDeaths":103,"ActiveCases":1689,"TotalTests":"261,591"},{"USAState":"North Dakota","TotalCases":5876,"TotalDeaths":99,"ActiveCases":1025,"TotalTests":"146,479"},{"USAState":"Maine","TotalCases":3814,"TotalDeaths":119,"ActiveCases":411,"TotalTests":"163,607"},{"USAState":"Montana","TotalCases":3342,"TotalDeaths":46,"ActiveCases":1217,"TotalTests":"152,315"},{"USAState":"Alaska","TotalCases":2524,"TotalDeaths":20,"ActiveCases":1687,"TotalTests":"207,264"},{"USAState":"Wyoming","TotalCases":2475,"TotalDeaths":25,"ActiveCases":567,"TotalTests":"71,063"},{"USAState":"Hawaii","TotalCases":1683,"TotalDeaths":26,"ActiveCases":478,"TotalTests":"142,900"},{"USAState":"Vermont","TotalCases":1400,"TotalDeaths":56,"ActiveCases":158,"TotalTests":"89,809"},{"USAState":"Guam","TotalCases":337,"TotalDeaths":5,"ActiveCases":88,"TotalTests":"19,936"},{"USAState":"Northern Mariana Islands","TotalCases":40,"TotalDeaths":2,"ActiveCases":19,"TotalTests":"12,745"},{"USAState":"Puerto Rico","TotalCases":15143,"TotalDeaths":201,"ActiveCases":12675,"TotalTests":"464,073"},{"USAState":"United States Virgin Islands","TotalCases":361,"TotalDeaths":7,"ActiveCases":116,"TotalTests":"8,372"},{"USAState":"Veteran Affairs","TotalCases":35905,"TotalDeaths":1988,"ActiveCases":5838,"TotalTests":"440,543"},{"USAState":"US Military","TotalCases":34491,"TotalDeaths":54,"ActiveCases":20393,"TotalTests":""},{"USAState":"Federal Prisons","TotalCases":11418,"TotalDeaths":101,"ActiveCases":4712,"TotalTests":"35,372"},{"USAState":"Navajo Nation","TotalCases":8837,"TotalDeaths":434,"ActiveCases":5272,"TotalTests":"72,328"},{"USAState":"Grand Princess Ship","TotalCases":103,"TotalDeaths":3,"ActiveCases":100,"TotalTests":""},{"USAState":"Wuhan Repatriated","TotalCases":3,"TotalDeaths":1,"ActiveCases":3,"TotalTests":"3"},{"USAState":"Diamond Princess Ship","TotalCases":46,"TotalDeaths":1,"ActiveCases":46,"TotalTests":"46"}]';		
+         const   rowJsonData = JSON.parse(rowJsonDataStr);
+	        console.log(rowJsonData);
+		
+		var rowJsonDataCountyNY = '[{"County":"Queens","TotalCases":"69121","TotalDeaths":"7173","ActiveCases":"61948","TotalTests":"7,168,139"},{"County":"Suffolk","TotalCases":"66492","TotalDeaths":"1996","ActiveCases":"35564","TotalTests":"5,569,879"},{"County":"Kings","TotalCases":"63918","TotalDeaths":"7245","ActiveCases":"56673","TotalTests":"3,386,503"},{"County":"Bronx","TotalCases":"50459","TotalDeaths":"4851","ActiveCases":"45608","TotalTests":"3,664,679"},{"County":"Nassau","TotalCases":"43158","TotalDeaths":"2194","ActiveCases":"36834","TotalTests":"1,953,289"},{"County":"Westchester","TotalCases":"35913","TotalDeaths":"1445","ActiveCases":"34468","TotalTests":"2,511,567"},{"County":"Manhattan","TotalCases":"31041","TotalDeaths":"3144","ActiveCases":"27897","TotalTests":"1,642,432"},{"County":"Richmond","TotalCases":"14928","TotalDeaths":"1075","ActiveCases":"13853","TotalTests":"1,087,547"},{"County":"Rockland","TotalCases":"13860","TotalDeaths":"674","ActiveCases":"13186","TotalTests":"1,205,961"},{"County":"Orange","TotalCases":"11126","TotalDeaths":"491","ActiveCases":"32251","TotalTests":"1,613,385"},{"County":"Erie","TotalCases":"8434","TotalDeaths":"669","ActiveCases":"9301","TotalTests":"1,132,408"},{"County":"Monroe","TotalCases":"4677","TotalDeaths":"284","ActiveCases":"7765","TotalTests":"1,233,264"},{"County":"Dutchess","TotalCases":"4468","TotalDeaths":"153","ActiveCases":"349","TotalTests":"1,381,859"},{"County":"Onondaga","TotalCases":"3459","TotalDeaths":"197","ActiveCases":"228","TotalTests":"1,901,252"},{"County":"Albany","TotalCases":"2493","TotalDeaths":"126","ActiveCases":"282","TotalTests":"1,126,252"},{"County":"Oneida","TotalCases":"2062","TotalDeaths":"115","ActiveCases":"170","TotalTests":"1,321,931"},{"County":"Ulster","TotalCases":"2026","TotalDeaths":"91","ActiveCases":"255","TotalTests":"1,097,361"},{"County":"Putnam","TotalCases":"1605","TotalDeaths":"63","ActiveCases":"177","TotalTests":"700,464"},{"County":"Sullivan","TotalCases":"1479","TotalDeaths":"50","ActiveCases":"1","TotalTests":"647,743"},{"County":"Niagara","TotalCases":"1434","TotalDeaths":"98","ActiveCases":"1","TotalTests":"701,311"},{"County":"Broome","TotalCases":"1029","TotalDeaths":"72","ActiveCases":"38","TotalTests":"919,347"},{"County":"Schenectady","TotalCases":"1018","TotalDeaths":"42","ActiveCases":"187","TotalTests":"436,973"},{"County":"Rensselaer","TotalCases":"767","TotalDeaths":"35","ActiveCases":"130","TotalTests":"957,374"},{"County":"Saratoga","TotalCases":"734","TotalDeaths":"17","ActiveCases":"91","TotalTests":"866,376"},{"County":"Columbia","TotalCases":"513","TotalDeaths":"47","ActiveCases":"63","TotalTests":"711,102"},{"County":"Madison","TotalCases":"422","TotalDeaths":"17","ActiveCases":"31","TotalTests":"494,626"},{"County":"Greene","TotalCases":"367","TotalDeaths":"18","ActiveCases":"8","TotalTests":"684,434"},{"County":"Ontario","TotalCases":"349","TotalDeaths":"34","ActiveCases":"0","TotalTests":"566,376"},{"County":"Steuben","TotalCases":"306","TotalDeaths":"42","ActiveCases":"18","TotalTests":"452,279"},{"County":"Warren","TotalCases":"298","TotalDeaths":"33","ActiveCases":"8","TotalTests":"477,267"},{"County":"Orleans","TotalCases":"291","TotalDeaths":"55","ActiveCases":"4","TotalTests":"600,765"},{"County":"Fulton","TotalCases":"275","TotalDeaths":"28","ActiveCases":"116","TotalTests":"573,185"},{"County":"Genesee","TotalCases":"270","TotalDeaths":"6","ActiveCases":"247","TotalTests":"582,521"},{"County":"St. Lawrence","TotalCases":"260","TotalDeaths":"4","ActiveCases":"77","TotalTests":"277,967"},{"County":"Washington","TotalCases":"254","TotalDeaths":"14","ActiveCases":"12","TotalTests":"259,105"},{"County":"Clinton","TotalCases":"249","TotalDeaths":"4","ActiveCases":"23","TotalTests":"520,718"},{"County":"Wayne","TotalCases":"243","TotalDeaths":"4","ActiveCases":"7","TotalTests":"329,556"},{"County":"Oswego","TotalCases":"241","TotalDeaths":"4","ActiveCases":"43","TotalTests":"166,903"},{"County":"Herkimer","TotalCases":"239","TotalDeaths":"4","ActiveCases":"6","TotalTests":"378,475"},{"County":"Chautauqua","TotalCases":"229","TotalDeaths":"9","ActiveCases":"235","TotalTests":"169,993"},{"County":"Tompkins","TotalCases":"227","TotalDeaths":"2","ActiveCases":"11","TotalTests":"171,598"},{"County":"Livingston","TotalCases":"209","TotalDeaths":"8","ActiveCases":"36","TotalTests":"106,926"},{"County":"Chenango","TotalCases":"206","TotalDeaths":"7","ActiveCases":"4","TotalTests":"180,037"},{"County":"Tioga","TotalCases":"194","TotalDeaths":"13","ActiveCases":"1689","TotalTests":"261,591"},{"County":"Chemung","TotalCases":"162","TotalDeaths":"3","ActiveCases":"18","TotalTests":"146,479"},{"County":"Cattaraugus","TotalCases":"157","TotalDeaths":"6","ActiveCases":"35","TotalTests":"163,607"},{"County":"Montgomery","TotalCases":"152","TotalDeaths":"4","ActiveCases":"42","TotalTests":"152,315"},{"County":"Cayuga","TotalCases":"141","TotalDeaths":"3","ActiveCases":"37","TotalTests":"207,264"},{"County":"Jefferson","TotalCases":"128","TotalDeaths":"0","ActiveCases":"8","TotalTests":"71,063"},{"County":"Wyoming","TotalCases":"111","TotalDeaths":"5","ActiveCases":"35","TotalTests":"142,900"},{"County":"Otsego","TotalCases":"107","TotalDeaths":"5","ActiveCases":"9","TotalTests":"89,809"},{"County":"Allegany","TotalCases":"103","TotalDeaths":"5","ActiveCases":"23","TotalTests":"19,936"},{"County":"Delaware","TotalCases":"101","TotalDeaths":"2","ActiveCases":"1","TotalTests":"12,745"},{"County":"Cortland","TotalCases":"90","TotalDeaths":"4","ActiveCases":"19","TotalTests":"464,073"},{"County":"Seneca","TotalCases":"84","TotalDeaths":"1","ActiveCases":"13","TotalTests":"8,372"},{"County":"Schoharie","TotalCases":"69","TotalDeaths":"3","ActiveCases":"18","TotalTests":"440,543"},{"County":"Essex","TotalCases":"55","TotalDeaths":"0","ActiveCases":"4","TotalTests":""},{"County":"Yates","TotalCases":"53","TotalDeaths":"7","ActiveCases":"55","TotalTests":"35,372"},{"County":"Franklin","TotalCases":"48","TotalDeaths":"1","ActiveCases":"1","TotalTests":"72,328"},{"County":"Lewis","TotalCases":"44","TotalDeaths":"5","ActiveCases":"0","TotalTests":""},{"County":"Schuyler","TotalCases":"22","TotalDeaths":"0","ActiveCases":"0","TotalTests":"3"},{"County":"Hamilton","TotalCases":"7","TotalDeaths":"1","ActiveCases":"6","TotalTests":"46"}]';		
+		const   rowJsonNYData = JSON.parse(rowJsonDataCountyNY);
+		console.log(rowJsonNYData);
+		
+		var rowJsonDataFlorida = '[{"County":"Miami-Dade","TotalCases":459195,"TotalDeaths":8453,"ActiveCases":309531},{"County":"Broward","TotalCases":439885,"TotalDeaths":32689,"ActiveCases":125571},{"County":"Palm Beach","TotalCases":423855,"TotalDeaths":5855,"ActiveCases":376134},{"County":"Hillsborough","TotalCases":39792,"TotalDeaths":5155,"ActiveCases":16272},{"County":"Orange","TotalCases":185117,"TotalDeaths":15872,"ActiveCases":48154},{"County":"Duval","TotalCases":172666,"TotalDeaths":7590,"ActiveCases":24514},{"County":"Pinellas","TotalCases":167953,"TotalDeaths":3498,"ActiveCases":136735},{"County":"Lee","TotalCases":1614,"TotalDeaths":3305,"ActiveCases":1371},{"County":"Polk","TotalCases":1637,"TotalDeaths":8529,"ActiveCases":156},{"County":"Collier","TotalCases":112771,"TotalDeaths":1813,"ActiveCases":32251},{"County":"Osceola","TotalCases":111773,"TotalDeaths":7190,"ActiveCases":24015},{"County":"Manatee","TotalCases":107574,"TotalDeaths":3766,"ActiveCases":42352},{"County":"Escambia","TotalCases":93936,"TotalDeaths":967,"ActiveCases":38239},{"County":"Volusia","TotalCases":86661,"TotalDeaths":6400,"ActiveCases":22759},{"County":"Seminole","TotalCases":84567,"TotalDeaths":2078,"ActiveCases":71607},{"County":"Pasco","TotalCases":84094,"TotalDeaths":3318,"ActiveCases":22311},{"County":"Sarasota","TotalCases":83748,"TotalDeaths":3440,"ActiveCases":74874},{"County":"Brevard","TotalCases":81199,"TotalDeaths":1491,"ActiveCases":50330},{"County":"Marion","TotalCases":79294,"TotalDeaths":1473,"ActiveCases":45311},{"County":"St. Lucie","TotalCases":62372,"TotalDeaths":2903,"ActiveCases":1561},{"County":"Lake","TotalCases":53906,"TotalDeaths":1510,"ActiveCases":35111},{"County":"Leon","TotalCases":52304,"TotalDeaths":1495,"ActiveCases":20494},{"County":"Alachua","TotalCases":51153,"TotalDeaths":1618,"ActiveCases":510},{"County":"Bay","TotalCases":48827,"TotalDeaths":892,"ActiveCases":9964},{"County":"Martin","TotalCases":4764,"TotalDeaths":4413,"ActiveCases":2191},{"County":"Santa Rosa","TotalCases":44336,"TotalDeaths":1794,"ActiveCases":26032},{"County":"St. Johns","TotalCases":43240,"TotalDeaths":1243,"ActiveCases":33705},{"County":"Okaloosa","TotalCases":42843,"TotalDeaths":734,"ActiveCases":17089},{"County":"Clay","TotalCases":42205,"TotalDeaths":828,"ActiveCases":11751},{"County":"Columbia","TotalCases":38623,"TotalDeaths":401,"ActiveCases":6600},{"County":"Indian River","TotalCases":37973,"TotalDeaths":274,"ActiveCases":12901},{"County":"Charlotte","TotalCases":31285,"TotalDeaths":496,"ActiveCases":6091},{"County":"Hernando","TotalCases":27079,"TotalDeaths":700,"ActiveCases":18958},{"County":"Hendry","TotalCases":25508,"TotalDeaths":332,"ActiveCases":10838},{"County":"Jackson","TotalCases":24618,"TotalDeaths":316,"ActiveCases":6205},{"County":"Gadsden","TotalCases":19042,"TotalDeaths":614,"ActiveCases":11079},{"County":"Putnam","TotalCases":18224,"TotalDeaths":1002,"ActiveCases":15453},{"County":"Monroe","TotalCases":1877,"TotalDeaths":146,"ActiveCases":126},{"County":"Citrus","TotalCases":16758,"TotalDeaths":289,"ActiveCases":12928},{"County":"DeSoto","TotalCases":14290,"TotalDeaths":579,"ActiveCases":5715},{"County":"Highlands","TotalCases":11780,"TotalDeaths":581,"ActiveCases":1592},{"County":"Walton","TotalCases":8395,"TotalDeaths":123,"ActiveCases":908},{"County":"Suwannee","TotalCases":6436,"TotalDeaths":409,"ActiveCases":589},{"County":"Sumter","TotalCases":596,"TotalDeaths":103,"ActiveCases":16},{"County":"Nassau","TotalCases":5876,"TotalDeaths":99,"ActiveCases":1025},{"County":"Okeechobee","TotalCases":3814,"TotalDeaths":119,"ActiveCases":411},{"County":"Flagler","TotalCases":3342,"TotalDeaths":46,"ActiveCases":1217},{"County":"Hardee","TotalCases":2524,"TotalDeaths":20,"ActiveCases":1987},{"County":"Madison","TotalCases":2475,"TotalDeaths":25,"ActiveCases":567},{"County":"Levy","TotalCases":1583,"TotalDeaths":26,"ActiveCases":478},{"County":"Wakulla","TotalCases":1400,"TotalDeaths":56,"ActiveCases":158},{"County":"Hamilton","TotalCases":337,"TotalDeaths":5,"ActiveCases":88},{"County":"Holmes","TotalCases":40,"TotalDeaths":2,"ActiveCases":19},{"County":"Liberty","TotalCases":15143,"TotalDeaths":201,"ActiveCases":1257},{"County":"Baker","TotalCases":361,"TotalDeaths":7,"ActiveCases":114},{"County":"Taylor","TotalCases":35905,"TotalDeaths":1988,"ActiveCases":5838},{"County":"Glades","TotalCases":34491,"TotalDeaths":54,"ActiveCases":2039},{"County":"Gulf","TotalCases":11418,"TotalDeaths":101,"ActiveCases":4712},{"County":"Jefferson","TotalCases":8837,"TotalDeaths":434,"ActiveCases":5272},{"County":"Bradford","TotalCases":109,"TotalDeaths":3,"ActiveCases":100},{"County":"Gilchrist","TotalCases":334,"TotalDeaths":1,"ActiveCases":32},{"County":"Calhoun","TotalCases":46,"TotalDeaths":10,"ActiveCases":40},{"County":"Dixie","TotalCases":277,"TotalDeaths":8,"ActiveCases":273},{"County":"Union","TotalCases":49,"TotalDeaths":15,"ActiveCases":12},{"County":"Washington","TotalCases":56,"TotalDeaths":13,"ActiveCases":39},{"County":"Franklin","TotalCases":113,"TotalDeaths":11,"ActiveCases":112},{"County":"Lafayette","TotalCases":86,"TotalDeaths":17,"ActiveCases":56}]';
+		const  rowJsonFloridaData = JSON.parse(rowJsonDataFlorida);
+		 console.log(rowJsonFloridaData);
+		
+         var dataArray = [];
+            for (var d = 0; d < rowJsonData.length; d++) {
+             dataArray.push(rowJsonData[d].TotalCases)
+	         console.log(dataArray);
+          }		
+			
+		 var minVal = d3.min(dataArray)
+         var maxVal = d3.max(dataArray)
+         var ramp = d3.scaleLinear().domain([minVal,maxVal]).range([lowColor,highColor]) 	
+
+        var projection = d3.geoAlbersUsa()
+            .translate([width /2 , height / 2])
+            .scale(width);
+
+        var path = d3.geoPath()
+            .projection(projection);
+       
+
+        var g = svg.append("g")
+            .attr('class', 'center-container center-items us-state')
+            .attr('transform', 'translate('+margin.left+','+margin.top+')')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+			
+		
+			
+		 
+		   Promise.resolve(d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'))
+            .then(ready);
+			
+		
+
+        function ready(us) {
+             var uState= topojson.feature(us, us.objects.states).features;
+			 var nCounty= topojson.feature(us, us.objects.counties).features;
+			 
+			    
+			 
+			     //for US states
+			        for (var i = 0; i < rowJsonData.length; i++) {
+                       
+                      // Grab State Name
+                        var dataState = rowJsonData[i].USAState;
+                        
+                      // Grab data value 
+                        var dataValue = rowJsonData[i].TotalCases;
+                        
+                        var deathValue = rowJsonData[i].TotalDeaths;
+                        var activeValue = rowJsonData[i].ActiveCases;
+                        
+                     // Find the corresponding state inside the TopoJson
+                        for (var j = 0; j < uState.length; j++) {
+                             var jsonState = uState[j].properties.name;	
+		                     
+
+                            if (dataState == jsonState) {
+                            console.log("if same state");
+                                // Copy the data value into the JSON
+                                 uState[j].properties.value = dataValue;
+		                         uState[j].properties.dvalue = deathValue;
+		                         uState[j].properties.avalue = activeValue;
+		                    
+                               // Stop looking through the JSON
+                             break;
+                            }
+                       }
+					   
+                    }
+
+                 //for Florida counties
+				    for (var i = 0; i < rowJsonFloridaData.length; i++) {
+                        console.log("amrita12345");
+                      // Grab State Name
+                        var dataCounty = rowJsonFloridaData[i].County;
+						
+                      // Grab data value 
+                        var dataCountyValue = rowJsonFloridaData[i].TotalCases;
+                       // console.log(dataCountyValue);
+
+                        var deathCountyValue = rowJsonFloridaData[i].TotalDeaths;
+                        var activeCountyValue = rowJsonFloridaData[i].ActiveCases;
+
+                     // Find the corresponding state inside the TopoJson
+                        for (var j = 0; j < nCounty.length; j++) {
+                             var jsonCounty = nCounty[j].properties.name;	
+		                    
+
+                            if (dataCounty == jsonCounty) {
+                            console.log("if same county");
+                                // Copy the data value into the JSON
+                                 nCounty[j].properties.val = dataCountyValue;
+		                         nCounty[j].properties.dval = deathCountyValue;
+		                         nCounty[j].properties.aval = activeCountyValue;
+		                  
+                               // Stop looking through the JSON
+                             break;
+                            }
+						  
+							
+                       }
+                    }
+  
+				
+            
+			g.append("g")
+                .attr("id", "counties")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.counties).features)
+                .enter().append("path")
+                .attr("d", path)
+                .attr("class", "county-boundary")
+                .on("click", reset)
+				.on("mouseover", function(p) {		
+                 div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+                div	.html(function() { 
+                      if (p.properties.val == undefined) {
+                          return "County:" + p.properties.name + "</br>" + "Total Cases:" +"423855" + "</br>" + "Deaths:"+"5855" + "</br>" + "Active Cases:"+"376134";
+                      } else { 
+                          return "County:" + p.properties.name + "</br>" + "Total Cases:" +p.properties.val + "</br>" + "Deaths:"+p.properties.dval + "</br>" + "Active Cases:"+p.properties.aval;
+                      }
+                   })	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+               })					
+                .on("mouseout", function(p) {		
+                    div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+               });
+			
+            			
+
+            g.append("g")
+                .attr("id", "states")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.states).features)
+                .enter().append("path")
+                .attr("d", path)
+                .attr("class", "state")
+                .on("click", clicked)
+				.style("fill", function(d,j) { return ramp(uState[j].properties.value) })
+                .on("mouseover", function(d) {		
+                 div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+                div	.html( "State:" + d.properties.name + "</br>" + "Total Cases:" +d.properties.value + "</br>" + "Deaths:"+d.properties.dvalue + "</br>" + "Active Cases:"+d.properties.avalue )	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+               })					
+                .on("mouseout", function(d) {		
+                    div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+               });
+            
+            g.append("path")
+                .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+                .attr("id", "state-borders")
+                .attr("d", path);
+                
+
+        }
+
+        function clicked(d) {
+            if (d3.select('.background').node() === this) return reset();
+
+            if (active.node() === this) return reset();
+
+            active.classed("active", false);
+            active = d3.select(this).classed("active", true);
+
+            var bounds = path.bounds(d),
+                dx = bounds[1][0] - bounds[0][0],
+                dy = bounds[1][1] - bounds[0][1],
+                x = (bounds[0][0] + bounds[1][0]) / 2,
+                y = (bounds[0][1] + bounds[1][1]) / 2,
+                scale = .9 / Math.max(dx / width, dy / height),
+                translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+            g.transition()
+                .duration(750)
+                .style("stroke-width", 1.5 / scale + "px")
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+        }
+		
+        function reset() {
+            active.classed("active", false);
+            active = d3.select(null);
+
+            g.transition()
+                .delay(100)
+                .duration(750)
+                .style("stroke-width", "1.5px")
+                .attr('transform', 'translate('+margin.left+','+margin.top+')');
+
+        }
+
+         // add a legend
+    var w = 140, h = 300;
+
+var key = d3.select("body")
+  .append("svg")
+  .attr("width", w)
+  .attr("height", h)
+  .attr("class", "legend");
+
+var legend = key.append("defs")
+  .append("svg:linearGradient")
+  .attr("id", "gradient")
+  .attr("x1", "100%")
+  .attr("y1", "0%")
+  .attr("x2", "100%")
+  .attr("y2", "100%")
+  .attr("spreadMethod", "pad");
+
+legend.append("stop")
+  .attr("offset", "0%")
+  .attr("stop-color", highColor)
+  .attr("stop-opacity", 1);
+  
+legend.append("stop")
+  .attr("offset", "100%")
+  .attr("stop-color", lowColor)
+  .attr("stop-opacity", 1);
+
+key.append("rect")
+  .attr("width", w - 100)
+  .attr("height", h)
+  .style("fill", "url(#gradient)")
+  .attr("transform", "translate(0,10)");
+
+var y = d3.scaleLinear()
+  .range([h, 0])
+  .domain([minVal, maxVal]);
+
+var yAxis = d3.axisRight(y);
+
+key.append("g")
+  .attr("class", "y axis")
+  .attr("transform", "translate(41,10)")
+  .call(yAxis)
+  
+
+    </script>
+</body>
+</html>
