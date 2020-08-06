@@ -21,6 +21,10 @@ def tishant_Page():
 def vaccination():
     return render_template("vaccination.html")
 
+@app.route("/CovidInfo.html")
+def covid_info():
+    return render_template("CovidInfo.html")
+
 @app.route('/Covid-19-stats.html')
 def covid_jyotish():
     return render_template("Covid-19-stats.html")
