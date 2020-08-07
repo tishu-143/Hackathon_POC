@@ -29,9 +29,11 @@ def covid_info():
 def covid_jyotish():
     return render_template("Covid-19-stats.html")
 
-@app.route("/Nimish.html")
-def nimish():
-    return render_template("Nimish.html")
+
+
+@app.route("/pandemic.html")
+def pandemic():
+    return render_template("pandemic.html")
 
 @app.route("/section.html")
 def section():

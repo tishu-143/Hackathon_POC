@@ -1,0 +1,334 @@
+{% extends "template.html" %}
+
+{% block content %}
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Pandemic Projection</title>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+	<style>
+	.bubbles {
+  stroke-width: 1px;
+  stroke: black;
+  opacity: .8
+}
+.bubbles:hover {
+  stroke: black;
+}
+div.tooltip {	
+            position: absolute;			
+            text-align: center;			
+            width: 130px;					
+            height: 25px;					
+            padding: 2px;				
+            font: 12px sans-serif;		
+            background: lightsteelblue;	
+            border: 1px;		
+            border-radius: 8px;			
+            pointer-events: none;				
+        }
+.column {
+  float: left;
+  width: 30%;
+  padding: 0 10px;
+}
+.row {margin: 0 -5px;}
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  text-align: justify;
+  background-color: #f1f1f1;
+  font-size:13px;
+  height: 220px;
+}
+.container {
+  padding: 1px 14px;
+  text-align: center;
+}
+.flu1{
+   background-color: rgb(228, 26, 28);
+}
+.flu2{
+   background-color: rgb(55, 126, 184);
+}
+.flu3{
+   background-color: rgb(77, 175, 74);
+}
+.flu4{
+   background-color: rgb(152, 78, 163);
+}
+.flu5{
+   background-color: rgb(255, 127, 0);
+}
+  </style>
+  </head>
+  <body>
+  <div id="my_bubble" style="width:35%; float:left; "></div>
+  <div style="width:55%; float:right; ">
+  <div class="row">
+  <div class="column">
+   <div class="container flu1">
+    <h4><b>Spanish Flu</b></h4>  
+  </div>
+  <div class="card">
+  <div><span><b>Detailed Information : </b> The Spanish flu, also known as the 1918 flu pandemic, was an unusually deadly influenza pandemic caused by the H1N1 influenza A virus. Lasting from February 1918 to April 1920, it infected 500 million people–about a third of the world's population at the time–in four successive waves.</span></div>
+  <div><span><b>Symptoms: </b> Sore throat, headache, and fever.</span></div>
+  <div><span><b>Origin: </b> Despite its name, historical and epidemiological data cannot identify the geographic origin of the Spanish flu. United States, Europe, China.</span></div>
+  </div>
+</div>
+<div class="column">
+ <div class="container flu2">
+    <h4><b>Asian Flu</b></h4>  
+  </div>
+ <div class="card">
+  <div><span><b>Detailed Information : </b> Asian flu, was a global pandemic of influenza A virus subtype H2N2 that originated in Guizhou, China, and killed at least a million people worldwide.</span></div>
+  <div><span><b>Symptoms: </b> Influenza, fever, body aches, chills, cough, weakness, and loss of appetite.</span></div>
+  <div><span><b>Origin: </b> In China in early 1956 lasting until 1958.</span></div>
+ 
+  </div>
+</div>
+<div class="column">
+  <div class="container flu3">
+    <h4><b>Covid-19</b></h4>  
+  </div>
+ <div class="card">
+  <div><span><b>Detailed Information : </b> Coronavirus disease 2019 (COVID-19) is an infectious disease caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2).It was first identified in December 2019 in Wuhan, Hubei, China, and has resulted in an ongoing pandemic.</span></div>
+  <div><span><b>Symptoms: </b> Fever, Cough, Loss of appetite, Fatigue, Shortness of breath.</span></div>
+  <div><span><b>Origin: </b> In December 2019 in Wuhan, Hubei, China.</span></div>
+
+  </div>
+</div>
+  </div>
+  
+    <div class="row">
+  <div class="column">
+   <div class="container flu4">
+    <h4><b>Russian Flu</b></h4>  
+  </div>
+  <div class="card">
+   <div><span><b>Detailed Information : </b> Russian Flu will be a deadly influenza pandemic that can kill about 400 million people worldwide.</span></div>
+  <div><span><b>Symptoms: </b> Fever, Cough, Shortness of breath.</span></div>
+  <div><span><b>Origin: </b> Russia.</span></div>
+ 
+  </div>
+</div>
+<div class="column">
+ <div class="container flu5">
+    <h4><b>Japanese Flu</b></h4>  
+  </div>
+ <div class="card">
+   <div><span><b>Detailed Information : </b> Japan Flu pandemic will be an outbreak of the H1N1 and the Influenza A viruses across Japan. The World Health Organization will raise the pandemic alert for influenza to level 1 following a worldwide outbreak of the influenza strain.</span></div>
+  <div><span><b>Symptoms: </b> Eye redness, Fever, Cough.</span></div>
+  <div><span><b>Origin: </b> Japan.</span></div>
+ 
+  </div>
+</div>
+  </div>
+</div>
+  <script>
+    
+        var rowJsonData1Str = '[{"name":"Spanish-flu","over":196,"year":1918},{"name":"Asian-flu","over":186,"year":1957},{"name":"Russian-flu","over":194,"year":2040},{"name":"Japanese-flu","over":192,"year":2057},{"name":"Covid-19","over":187,"year":2019}]';
+		const   data1 = JSON.parse(rowJsonData1Str);
+		console.log(data1);
+		
+		var rowJsonData2Str = '[{"name":"Spanish flu","max":598000,"min":118667,"median":137333,"apprentice":[115590,118920]},{"name":"Asian flu","max":362228,"min":4001240,"median":40248,"apprentice":25124},{"name":"Russian flu","max":474000,"min":118667,"median":137333,"apprentice":[115590,118920]},{"name":"Japan flu","max":296000,"min":118667,"median":137333,"apprentice":[115590,118920]},{"name":"Covid-19","max":762228,"min":4001240,"median":40248,"apprentice":25124}]';
+		const   data2 = JSON.parse(rowJsonData2Str);
+		console.log(data2);
+    
+    // When all data has loaded draw the scatter plot(s)
+
+   
+          for (var i = 0; i < data1.length; i++) {
+                        console.log("pandemic");
+                       
+                      // Grab data value 
+                        var fluName = data1[i].name;
+                        var fluYear = data1[i].year;
+                        var fluOver = data1[i].over;
+						console.log(fluName);
+						console.log(fluYear);
+						console.log(fluOver);
+                       
+          }	 
+      
+    // set the dimensions and margins of the graph
+         var margin = {top: 40, right: 150, bottom: 60, left: 30},
+             width = 600 - margin.left - margin.right,
+             height = 420 - margin.top - margin.bottom;
+
+   // append the svg object to the body of the page
+         var svg = d3.select("#my_bubble")
+                  .append("svg")
+                  .attr("width", width + margin.left + margin.right)
+                  .attr("height", height + margin.top + margin.bottom)
+                  .append("g")
+                  .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+				  
+	     // Add X axis
+  var x = d3.scaleLinear()
+    .domain([1900, 2060])
+    .range([ 0, width ]);
+    svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x).ticks(3));
+
+  // Add X axis label:
+  svg.append("text")
+      .attr("text-anchor", "end")
+      .attr("x", width)
+      .attr("y", height+50 )
+      .text("Year");
+
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([180, 200])
+    .range([ height, 0]);
+    svg.append("g")
+    .call(d3.axisLeft(y));
+
+  // Add Y axis label:
+  svg.append("text")
+      .attr("text-anchor", "end")
+      .attr("x", 0)
+      .attr("y", -20 )
+      .text("Population Affected in Millions")
+      .attr("text-anchor", "start")
+
+  // Add a scale for bubble size
+  var z = d3.scaleSqrt()
+    .domain([200000, 1310000000])
+    .range([ 10, 30]);
+
+  // Add a scale for bubble color
+  var myColor = d3.scaleOrdinal()
+    .domain(["Spanish-flu", "Asian-flu", "Covid-19", "Russian-flu", "Japanese-flu"])
+    .range(d3.schemeSet1);
+	
+   var div = d3.select("#my_bubble").append("div")	
+            .attr("class", "tooltip")				
+            .style("opacity", 0);
+			
+    // What to do when one group is hovered
+  var highlight = function(d){
+    // reduce opacity of all groups
+    d3.selectAll(".bubbles").style("opacity", .05)
+    // expect the one that is hovered
+    d3.selectAll("."+d).style("opacity", 1)
+  }
+
+  // And when it is not hovered anymore
+  var noHighlight = function(d){
+    d3.selectAll(".bubbles").style("opacity", 1)
+  }
+
+// Add dots
+  svg.append('g')
+      .selectAll("dot")
+      .data(data1)
+      .enter()
+      .append("circle")
+      .attr("class", function(d,i) { return "bubbles " + data1[i].name })
+      .attr("cx", function (d,i) { return x(data1[i].year); } )
+      .attr("cy", function (d,i) { return y(data1[i].over); } )
+      .attr("r", function (d,i) { return z(data1[i].over); } )
+      .style("fill", function (d,i) { return myColor(data1[i].name); } )
+      .on("mouseover", function(d,i) {		
+			   div.transition()
+			   .duration(200)		
+                .style("opacity", .9)	
+              .style("left", (d3.event.pageX - 50) + "px")
+              .style("top", d3.event.pageY - 70 + "px")
+              .style("display", "inline-block")
+			  div .html("<b>"+"Pandemic: "+"</b>" + data1[i].name);
+               })			   
+      .on("mouseout", function(d) {		
+                    div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+               });
+    
+	// Add legend: circles
+    var valuesToShow = [180000000, 1900000000]
+    var xCircle = 470
+    var xLabel = 530
+    svg
+      .selectAll("legend")
+      .data(valuesToShow)
+      .enter()
+      .append("circle")
+        .attr("cx", xCircle)
+        .attr("cy", function(d){ return height - 100 - z(d) } )
+        .attr("r", function(d){ return z(d) })
+        .style("fill", "none")
+        .attr("stroke", "black")
+
+    // Add legend: segments
+    svg
+      .selectAll("legend")
+      .data(valuesToShow)
+      .enter()
+      .append("line")
+        .attr('x1', function(d){ return xCircle + z(d) } )
+        .attr('x2', xLabel)
+        .attr('y1', function(d){ return height - 100 - z(d) } )
+        .attr('y2', function(d){ return height - 100 - z(d) } )
+        .attr('stroke', 'black')
+        .style('stroke-dasharray', ('2,2'))
+
+    // Add legend: labels
+    svg
+      .selectAll("legend")
+      .data(valuesToShow)
+      .enter()
+      .append("text")
+        .attr('x', xLabel)
+        .attr('y', function(d){ return height - 100 - z(d) } )
+        .text( function(d){ return d/1000000 } )
+        .style("font-size", 10)
+        .attr('alignment-baseline', 'middle')
+
+    // Legend title
+    svg.append("text")
+      .attr('x', xCircle)
+      .attr("y", height - 100 +30)
+      .text("Population (M)")
+      .attr("text-anchor", "middle")
+
+    // Add one dot in the legend for each name.
+    var size = 20
+    var allgroups = ["Spanish-flu", "Asian-flu", "Covid-19", "Russian-flu", "Japanese-flu"]
+    svg.selectAll("myrect")
+      .data(allgroups)
+      .enter()
+      .append("circle")
+        .attr("cx", 470)
+        .attr("cy", function(d,i){ return 10 + i*(size+5)}) 
+        .attr("r", 7)
+        .style("fill", function(d){ return myColor(d)})
+        .on("mouseover", highlight)
+        .on("mouseleave", noHighlight)
+
+    // Add labels beside legend dots
+    svg.selectAll("mylabels")
+      .data(allgroups)
+      .enter()
+      .append("text")
+        .attr("x", 470 + size*.8)
+        .attr("y", function(d,i){ return i * (size + 5) + (size/2)}) 
+        .style("fill", function(d){ return myColor(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+        .on("mouseover", highlight)
+        .on("mouseleave", noHighlight)
+
+  </script>
+</body>
+
+{% endblock %}

@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html>
+{% extends "template.html" %}
+
+{% block content %}
 <head>
 <meta charset="utf-8">
 
@@ -10,7 +11,7 @@
 <!-- Create a div where the graph will take place -->
 <style>
 #my_dataviz{
-heigth:1000px;
+height:1000px;
 }
 body {
   background-color: #F1F3F3    
@@ -33,8 +34,10 @@ div.tooltip {
 
 </head>
 <body>
-<div class="vaccine" style="width:65%; float:left;"></div>
-<div style="width:35%; float:right;">
+
+<div class="vaccine" style="width:60%; float:left;"></div>
+
+<div style="width:37%; float:right;">
 <h2>Clinical Trials Phases</h2>
 <div><span><b>Phase-1: </b> The first time a new treatment or vaccine is tested in humans, it will usually be given to a small group of healthy volunteers.</span></br>
 <span>The principle objectives in phase I are to:</span></br>
@@ -73,16 +76,16 @@ div.tooltip {
         	
         // Parse the Data
 		
-		var rowJsonDataVac = '[{"Institution":"Clover Biopharmaceuticals Inc.","Country":"China","Type":"Protein subunit","Phase":"1"},{"Institution":"People’s Liberation Army Academy of Military Sciences and Walvax Biotech","Country":"China","Type":"RNA","Phase":"1"},{"Institution":"Imperial College of London","Country":"United Kingdom","Type":"RNA","Phase":"1"},{"Institution":"Gamaleya Research Institute","Country":"Russia","Type":"Non-replicating viral vector","Phase":"1"},{"Institution":"CureVac","Country":"Germany","Type":"RNA","Phase":"1"},{"Institution":"University of Queensland/ GSK/Dynavax","Country":"Australia","Type":"Protein subunit","Phase":"1"},{"Institution":"Vaxine Pty Ltd/Medytox","Country":"Australia/ South Korea","Type":"Protein subunit","Phase":"1"},{"Institution":"Medicago Inc.","Country":"Canada","Type":"VLP","Phase":"1"},{"Institution":"Kentucky Bioprocessing, Inc.","Country":"U.S","Type":"Protein subunit","Phase":"1,2"},{"Institution":"Novavax","Country":"U.S","Type":"Protein subunit","Phase":"1,2"},{"Institution":"Inovio Pharmaceuticals","Country":"U.S","Type":"DNA","Phase":"1,2"},{"Institution":"BioNTech/Fosun Pharma/Pfizer","Country":"U.S. and Europe","Type":"RNA (4 different vaccine variations)","Phase":"1,2"},{"Institution":"Arcturus/Duke-NUS","Country":"U.S. and Singapore","Type":"RNA","Phase":"1,2"},{"Institution":"Institute of Medical Biology and the Chinese Academy of Medical Sciences","Country":"China","Type":"Inactivated","Phase":"1,2"},{"Institution":"CanSino Biological and the Beijing Institute of Biotechnology","Country":"China","Type":"Non-replicating viral vector","Phase":"1,2"},{"Institution":"Anhui Zhifei Longcom Biopharmaceutical and the Institute of Microbiology, Chinese Academy of Sciences","Country":"China","Type":"Protein subunit","Phase":"1,2"},{"Institution":"Cadila Healthcare Limited","Country":"India","Type":"DNA","Phase":"1,2"},{"Institution":"Bharat Biotech","Country":"India","Type":"Inactivated","Phase":"1,2"},{"Institution":"Osaka University/ AnGes/Takara Bio","Country":"Japan","Type":"DNA","Phase":"1,2"},{"Institution":"Genexine Consortium","Country":"South Korea","Type":"DNA","Phase":"1,2"},{"Institution":"Moderna and the National Institute of Allergy and Infectious Diseases","Country":"U.S","Type":"RNA","Phase":"1,2,3"},{"Institution":"University of Oxford/ AstraZeneca/ Serum Institute of India","Country":"United Kingdom","Type":"Non-replicating viral vector","Phase":"1,2,3"},{"Institution":"Sinovac","Country":"China","Type":"Inactivated","Phase":"1,2,3"},{"Institution":"Beijing Institute of Biological Products and Sinopharm","Country":"China","Type":"Inactivated","Phase":"1,2,3"},{"Institution":"Wuhan Institute of Biological Products and Sinopharm","Country":"China","Type":"Inactivated","Phase":"1,2,3"}]';
+		var rowJsonDataVac = '[{"Institution":"Clover Biopharmaceuticals Inc.","Country":"China","Type":"Protein subunit","Phase":"1"},{"Institution":"People’s Liberation Academy of Military Sciences and Walvax Biotech","Country":"China","Type":"RNA","Phase":"1"},{"Institution":"Imperial College of London","Country":"United Kingdom","Type":"RNA","Phase":"1"},{"Institution":"Gamaleya Research Institute","Country":"Russia","Type":"Non-replicating viral vector","Phase":"1"},{"Institution":"CureVac","Country":"Germany","Type":"RNA","Phase":"1"},{"Institution":"University of Queensland/ GSK/Dynavax","Country":"Australia","Type":"Protein subunit","Phase":"1"},{"Institution":"Vaxine Pty Ltd/Medytox","Country":"Australia/ South Korea","Type":"Protein subunit","Phase":"1"},{"Institution":"Medicago Inc.","Country":"Canada","Type":"VLP","Phase":"1"},{"Institution":"Kentucky Bioprocessing, Inc.","Country":"U.S","Type":"Protein subunit","Phase":"2"},{"Institution":"Novavax","Country":"U.S","Type":"Protein subunit","Phase":"2"},{"Institution":"Inovio Pharmaceuticals","Country":"U.S","Type":"DNA","Phase":"2"},{"Institution":"BioNTech/Fosun Pharma/Pfizer","Country":"U.S. and Europe","Type":"RNA (4 different vaccine variations)","Phase":"2"},{"Institution":"Arcturus/Duke-NUS","Country":"U.S. and Singapore","Type":"RNA","Phase":"2"},{"Institution":"Institute of Medical Biology and the Chinese Academy of Medical Sciences","Country":"China","Type":"Inactivated","Phase":"2"},{"Institution":"CanSino Biological and the Beijing Institute of Biotechnology","Country":"China","Type":"Non-replicating viral vector","Phase":"2"},{"Institution":"Anhui Zhifei Longcom Biopharmaceutical and the Institute of Microbiology, Chinese Academy of Sciences","Country":"China","Type":"Protein subunit","Phase":"2"},{"Institution":"Cadila Healthcare Limited","Country":"India","Type":"DNA","Phase":"2"},{"Institution":"Bharat Biotech","Country":"India","Type":"Inactivated","Phase":"2"},{"Institution":"Osaka University/ AnGes/Takara Bio","Country":"Japan","Type":"DNA","Phase":"2"},{"Institution":"Genexine Consortium","Country":"South Korea","Type":"DNA","Phase":"2"},{"Institution":"Moderna and the National Institute of Allergy and Infectious Diseases","Country":"U.S","Type":"RNA","Phase":"3"},{"Institution":"University of Oxford/ AstraZeneca/ Serum Institute of India","Country":"United Kingdom","Type":"Non-replicating viral vector","Phase":"3"},{"Institution":"Sinovac","Country":"China","Type":"Inactivated","Phase":"3"},{"Institution":"Beijing Institute of Biological Products and Sinopharm","Country":"China","Type":"Inactivated","Phase":"3"},{"Institution":"Wuhan Institute of Biological Products and Sinopharm","Country":"China","Type":"Inactivated","Phase":"3"}]';
        var data= JSON.parse(rowJsonDataVac);
 	     console.log(data);
 		
 		
          var margin = {top: 30, right: 10, bottom: 300, left: 200},
-             width = 900 - margin.left - margin.right,
+             width = 700 - margin.left - margin.right,
              height = 600 - margin.top - margin.bottom;
         var axisPadding = 10;
-         var svgWidth = 600;
+         var svgWidth = 400;
         var svgHeight = 700;
  
         var heightPad = 100;
@@ -120,12 +123,11 @@ div.tooltip {
             .range([ height, 0]);
           svg.append("g")
 		  .text('Phase')
-          
-            .call(d3.axisLeft(y));
+          .call(d3.axisLeft(y));
          
 		// Label layer
     var label = svg.append('g')
-        .attr('transform', 'translate(' + [margin.left - axisPadding, margin.top] + ')');
+        .attr('transform', 'translate(' + [margin.right + 50, margin.top] + ')');
     label.append('text')
 	     .attr("font-weight", "bold")
         .text('Bar Chart for Clinical Trials Info')
@@ -134,8 +136,32 @@ div.tooltip {
             'text-anchor': 'start',
             
         });
-    
-           
+		
+	svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 -40)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Phase");      
+
+	  
+    function colorPicker(v) {
+	     console.log("phase"+v.Phase);
+         if (v.Phase == 1) {
+          return "#fa8072";
+		  console.log("red");
+        } else if (v.Phase == 2) {
+          return "#ed2939";
+		  console.log("blue");
+        } else if (v.Phase == 3) {
+          return "#bf0a30";
+		  console.log("green");
+        }
+		 
+     }
+     
+     
           // Bars
           svg.selectAll("mybar")
             .data(data)
@@ -145,7 +171,8 @@ div.tooltip {
               .attr("y", function(d) { return y(d.Phase); })
               .attr("width", x.bandwidth())
               .attr("height", function(d) { return height - y(d.Phase); })
-              .attr("fill", "#bc2a66")
+              .attr("fill", function(d) {
+                    return colorPicker(d);})
 			  .on("mouseover", function(d) {		
 			   div.transition()
 			   .duration(200)		
@@ -157,11 +184,11 @@ div.tooltip {
                })			   
                .on("mouseout", function(d) {		
                     div.transition()		
-                .duration(500)		
-                .style("opacity", 0);	
+                   .duration(500)		
+                   .style("opacity", 0);	
                });
         
        
 
         </script>
-        </html>
+        {%endblock%}
