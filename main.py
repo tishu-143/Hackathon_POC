@@ -13,7 +13,7 @@ def home():
 def template():
     return render_template("template.html")
 
-@app.route("/tishant.html")
+@app.route("/orgs-map")
 def tishant_Page():
     return tishant.folium_map()
 
